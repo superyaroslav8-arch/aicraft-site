@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Нейро — Ai крафт</title>
+  <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+<div class="app">
+  <aside class="side">
+    <a class="logo" href="../index.html">Ai крафт</a>
+    <nav id="nav"></nav>
+    <div class="user"><strong id="who">—</strong><a href="#" id="logout">Выйти</a></div>
+  </aside>
+  <main class="main">
+    <div class="page-h"><h1>Нейро</h1></div>
+    <div class="chat">
+      <div class="chat-log" id="log">
+        <div class="bubble bot">Привет! Я Нейро. Помогу с сайтом, медиа или просто поговорю. Что нужно?</div>
+      </div>
+      <form class="chat-form" id="form">
+        <input id="q" placeholder="Сообщение…" autocomplete="off">
+        <button type="submit" class="btn">→</button>
+      </form>
+    </div>
+  </main>
+</div>
+<div id="mob"></div>
+<script src="../js/app.js"></script>
+<script>
+var s = App.require();
+if (!s) throw 0;
+App.applyTheme();
+document.getElementById('nav').innerHTML = App.nav('neuro.html');
+document.getElementById('mob').innerHTML = App.mob('neuro.html');
+document.getElementById('who').textContent = s.name;
+document.getElementById('logout').onclick = function (e) { e.preventDefault(); App.clearSession(); location.href = 'enter.html'; };
+function reply(t) {
+  t = (t || '').toLowerCase();
+  if (/привет|здравств|hello|hi/.test(t)) return 'Привет! Чем заняться: собрать сайт, сгенерировать фото или настройка?';
+  if (/сайт|лендинг|сбор/.test(t)) return 'Откройте «Собрать сайт», опишите идею обычным текстом, выберите адрес и сохраните. Потом «Открыть» в списке сайтов.';
+  if (/фото|картин|медиа|изображ/.test(t)) return 'Раздел «Медиа»: напишите описание — появится картинка по запросу.';
+  if (/домен|адрес|ссылк/.test(t)) return 'При сохранении сайта выберите поддомен *.ai_craft.ru / .com / .dev или укажите свой домен. «Открыть» показывает готовый HTML.';
+  if (/спасибо|благодар/.test(t)) return 'Пожалуйста. Если ещё что-то — пишите.';
+  return 'Могу подсказать про сборку сайта, медиа или вход. Уточните задачу.';
+}
+document.getElementById('form').onsubmit = function (e) {
+  e.preventDefault();
+  var q = document.getElementById('q').value.trim();
+  if (!q) return;
+  var log = document.getElementById('log');
+  log.innerHTML += '<div class="bubble me">' + App.esc(q) + '</div>';
+  document.getElementById('q').value = '';
+  setTimeout(function () {
+    log.innerHTML += '<div class="bubble bot">' + App.esc(reply(q)) + '</div>';
+    log.scrollTop = 99999;
+  }, 400);
+  log.scrollTop = 99999;
+};
+</script>
+</body>
+</html>

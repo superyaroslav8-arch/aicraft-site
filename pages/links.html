@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Ссылки — Ai крафт</title>
+  <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+<div class="app">
+  <aside class="side">
+    <a class="logo" href="../index.html">Ai крафт</a>
+    <nav id="nav"></nav>
+    <div class="user"><strong id="who">—</strong><a href="#" id="logout">Выйти</a></div>
+  </aside>
+  <main class="main">
+    <div class="page-h"><h1>Ссылки</h1></div>
+    <div class="split">
+      <div class="card form">
+        <h3>Новая</h3>
+        <label>Название</label><input id="title">
+        <label>URL</label><input id="url" placeholder="https://...">
+        <label>Слаг</label><input id="slug" placeholder="my-link">
+        <button type="button" class="btn" id="add" style="margin-top:10px">Создать</button>
+      </div>
+      <div class="card" id="list"></div>
+    </div>
+  </main>
+</div>
+<div id="mob"></div>
+<script src="../js/app.js"></script>
+<script>
+var s = App.require();
+if (!s) throw 0;
+App.applyTheme();
+document.getElementById('nav').innerHTML = App.nav('links.html');
+document.getElementById('mob').innerHTML = App.mob('links.html');
+document.getElementById('who').textContent = s.name;
+document.getElementById('logout').onclick = function (e) { e.preventDefault(); App.clearSession(); location.href = 'enter.html'; };
+function render() {
+  var list = App.getLinks(s.login), el = document.getElementById('list');
+  if (!list.length) { el.innerHTML = '<p class="muted">Пока пусто</p>'; return; }
+  el.innerHTML = list.map(function (l) {
+    return '<div style="padding:10px 0;border-bottom:1px solid var(--line)"><strong>' + App.esc(l.shortUrl) + '</strong><div class="muted">' + App.esc(l.url) +
+      '</div><div class="actions" style="margin-top:6px"><button type="button" data-c="' + App.esc(l.shortUrl) + '">Копировать</button><button type="button" data-d="' + l.id + '">Удалить</button></div></div>';
+  }).join('');
+  el.querySelectorAll('[data-c]').forEach(function (b) {
+    b.onclick = function () {
+      navigator.clipboard.writeText(b.dataset.c).then(function () { App.toast('Скопировано'); }).catch(function () { App.toast(b.dataset.c); });
+    };
+  });
+  el.querySelectorAll('[data-d]').forEach(function (b) {
+    b.onclick = function () { App.deleteLink(s.login, b.dataset.d); render(); };
+  });
+}
+document.getElementById('add').onclick = function () {
+  var url = document.getElementById('url').value.trim();
+  if (!url) { App.toast('Укажите URL'); return; }
+  App.createLink(s.login, {
+    title: document.getElementById('title').value.trim(),
+    url: url,
+    slug: document.getElementById('slug').value.trim()
+  });
+  document.getElementById('title').value = '';
+  document.getElementById('url').value = '';
+  document.getElementById('slug').value = '';
+  render();
+  App.toast('Создано');
+};
+render();
+</script>
+</body>
+</html>

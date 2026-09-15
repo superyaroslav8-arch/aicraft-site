@@ -11,20 +11,20 @@
   <aside class="side">
     <a class="logo" href="../index.html">Ai крафт</a>
     <nav id="nav"></nav>
-    <div class="user"><strong id="who">—</strong><a href="#" id="out">Выйти</a></div>
+    <div class="user"><strong id="who">—</strong><a href="#" id="logout">Выйти</a></div>
   </aside>
   <main class="main">
     <div class="page-h"><h1>Медиа</h1></div>
     <div class="split">
       <div class="card form">
         <h3>Фото по описанию</h3>
-        <p class="muted" style="margin:6px 0">Реальная генерация AI (бесплатно)</p>
+        <p class="muted" style="margin:6px 0">Реальная генерация AI</p>
         <label>Описание</label>
         <textarea id="prompt" placeholder="Уютная кофейня, тёплый свет"></textarea>
         <button type="button" class="btn" id="gen" style="margin-top:10px">Сгенерировать</button>
         <p class="muted" id="st" style="margin-top:10px"></p>
       </div>
-      <div class="card" id="out" style="min-height:240px;display:grid;place-items:center">Результат здесь</div>
+      <div class="card" id="result" style="min-height:240px;display:grid;place-items:center">Результат здесь</div>
     </div>
   </main>
 </div>
@@ -37,12 +37,7 @@ App.applyTheme();
 document.getElementById('nav').innerHTML = App.nav('media.html');
 document.getElementById('mob').innerHTML = App.mob('media.html');
 document.getElementById('who').textContent = s.name;
-document.getElementById('out').onclick = function (e) { e.preventDefault(); App.clearSession(); location.href = 'enter.html'; };
-// fix logout id conflict - the out is result div
-document.querySelector('.user #out') || document.querySelector('.user a').onclick;
-document.querySelectorAll('.user a').forEach(function (a) {
-  a.onclick = function (e) { e.preventDefault(); App.clearSession(); location.href = 'enter.html'; };
-});
+document.getElementById('logout').onclick = function (e) { e.preventDefault(); App.clearSession(); location.href = 'enter.html'; };
 document.getElementById('gen').onclick = function () {
   var p = document.getElementById('prompt').value.trim();
   if (!p) { App.toast('Напишите описание'); return; }
@@ -52,7 +47,7 @@ document.getElementById('gen').onclick = function () {
   var url = App.imageUrl(p);
   var img = new Image();
   img.onload = function () {
-    var box = document.getElementById('out');
+    var box = document.getElementById('result');
     box.innerHTML = '';
     img.style.cssText = 'width:100%;border-radius:12px';
     box.appendChild(img);
@@ -61,10 +56,10 @@ document.getElementById('gen').onclick = function () {
     App.toast('Готово');
   };
   img.onerror = function () {
-    document.getElementById('st').textContent = 'Ошибка. Нажмите ещё раз.';
+    document.getElementById('st').textContent = 'Ошибка. Повторите.';
     btn.disabled = false;
   };
-  document.getElementById('out').textContent = 'Загрузка…';
+  document.getElementById('result').textContent = 'Загрузка…';
   img.src = url + '&t=' + Date.now();
 };
 </script>

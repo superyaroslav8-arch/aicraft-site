@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Настройки — Ai крафт</title>
+  <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+<div class="app">
+  <aside class="side">
+    <a class="logo" href="../index.html">Ai крафт</a>
+    <nav id="nav"></nav>
+    <div class="user"><strong id="who">—</strong><a href="#" id="logout">Выйти</a></div>
+  </aside>
+  <main class="main">
+    <div class="page-h"><h1 id="h1">Настройки</h1></div>
+    <div class="card" style="max-width:480px">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;gap:12px;flex-wrap:wrap">
+        <div><strong id="lLang">Язык</strong><div class="muted" id="dLang">Интерфейс</div></div>
+        <div class="toggle" id="lang"><button type="button" data-v="ru">RU</button><button type="button" data-v="en">EN</button></div>
+      </div>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;gap:12px;flex-wrap:wrap">
+        <div><strong id="lTheme">Тема</strong><div class="muted" id="dTheme">Светлая / тёмная</div></div>
+        <div class="toggle" id="theme"><button type="button" data-v="dark">Тёмная</button><button type="button" data-v="light">Светлая</button></div>
+      </div>
+      <div style="margin-bottom:8px"><strong id="lAccent">Акцент</strong></div>
+      <div class="swatches" id="accents">
+        <button type="button" class="swatch" data-c="#8b5cf6" style="background:#8b5cf6"></button>
+        <button type="button" class="swatch" data-c="#3b82f6" style="background:#3b82f6"></button>
+        <button type="button" class="swatch" data-c="#10b981" style="background:#10b981"></button>
+        <button type="button" class="swatch" data-c="#f59e0b" style="background:#f59e0b"></button>
+        <button type="button" class="swatch" data-c="#ef4444" style="background:#ef4444"></button>
+        <button type="button" class="swatch" data-c="#ec4899" style="background:#ec4899"></button>
+      </div>
+      <p class="muted" style="margin-top:20px">Поддержка: +7 (900) 237-32-22 · superyaroslav8@iCloud.com</p>
+    </div>
+  </main>
+</div>
+<div id="mob"></div>
+<script src="../js/app.js"></script>
+<script>
+var s = App.require();
+if (!s) throw 0;
+var conf = App.settings();
+App.applyTheme(conf);
+document.getElementById('nav').innerHTML = App.nav('settings.html');
+document.getElementById('mob').innerHTML = App.mob('settings.html');
+document.getElementById('who').textContent = s.name;
+document.getElementById('logout').onclick = function (e) { e.preventDefault(); App.clearSession(); location.href = 'enter.html'; };
+function sync() {
+  conf = App.settings();
+  document.querySelectorAll('#lang button').forEach(function (b) { b.classList.toggle('on', b.dataset.v === conf.lang); });
+  document.querySelectorAll('#theme button').forEach(function (b) { b.classList.toggle('on', b.dataset.v === conf.theme); });
+  document.querySelectorAll('#accents .swatch').forEach(function (b) { b.classList.toggle('on', b.dataset.c === conf.accent); });
+  if (conf.lang === 'en') {
+    document.getElementById('h1').textContent = 'Settings';
+    document.getElementById('lLang').textContent = 'Language';
+    document.getElementById('dLang').textContent = 'Interface';
+    document.getElementById('lTheme').textContent = 'Theme';
+    document.getElementById('dTheme').textContent = 'Light / dark';
+    document.getElementById('lAccent').textContent = 'Accent';
+  } else {
+    document.getElementById('h1').textContent = 'Настройки';
+    document.getElementById('lLang').textContent = 'Язык';
+    document.getElementById('dLang').textContent = 'Интерфейс';
+    document.getElementById('lTheme').textContent = 'Тема';
+    document.getElementById('dTheme').textContent = 'Светлая / тёмная';
+    document.getElementById('lAccent').textContent = 'Акцент';
+  }
+}
+document.querySelectorAll('#lang button').forEach(function (b) {
+  b.onclick = function () { App.saveSettings({ lang: b.dataset.v }); sync(); App.toast('OK'); };
+});
+document.querySelectorAll('#theme button').forEach(function (b) {
+  b.onclick = function () { App.saveSettings({ theme: b.dataset.v }); sync(); App.toast('OK'); };
+});
+document.querySelectorAll('#accents .swatch').forEach(function (b) {
+  b.onclick = function () { App.saveSettings({ accent: b.dataset.c }); sync(); App.toast('OK'); };
+});
+sync();
+</script>
+</body>
+</html>
