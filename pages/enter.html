@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Вход — Ai крафт</title>
+  <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+<div class="enter">
+  <div class="enter-box">
+    <a class="logo" href="../index.html">Ai крафт</a>
+    <h1 style="margin:12px 0 6px;font-size:22px">Вход</h1>
+    <p class="muted" style="margin-bottom:12px">Без пароля. Имя — и в кабинет. Фото по желанию.</p>
+    <div class="form" style="text-align:left">
+      <label>Имя</label>
+      <input id="name" value="Гость" maxlength="32">
+    </div>
+    <div class="cam" id="cam">
+      <video id="video" autoplay playsinline muted></video>
+      <canvas id="canvas" hidden></canvas>
+      <img id="shot" alt="">
+    </div>
+    <p class="muted" id="hint" style="margin-bottom:10px">Камера не обязательна</p>
+    <button type="button" class="btn btn-block" id="go">Войти без фото →</button>
+    <button type="button" class="btn btn-ghost btn-block" id="camBtn" style="margin-top:8px">Включить камеру</button>
+    <button type="button" class="btn btn-block" id="snap" style="display:none;margin-top:8px">Снять и войти</button>
+  </div>
+</div>
+<script src="../js/app.js"></script>
+<script>
+App.applyTheme();
+if (App.getSession()) location.href = 'home.html';
+var stream = null, photo = null;
+document.getElementById('go').onclick = function () {
+  App.enter({ name: document.getElementById('name').value, photo: null });
+  location.href = 'home.html';
+};
+document.getElementById('camBtn').onclick = async function () {
+  try {
+    stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user' }, audio: false });
+    document.getElementById('video').srcObject = stream;
+    document.getElementById('hint').textContent = 'Смотрите в камеру';
+    document.getElementById('snap').style.display = 'block';
+    this.style.display = 'none';
+  } catch (e) {
+    document.getElementById('hint').textContent = 'Камера недоступна — войдите без фото';
+  }
+};
+document.getElementById('snap').onclick = function () {
+  var v = document.getElementById('video'), c = document.getElementById('canvas');
+  c.width = v.videoWidth || 480; c.height = v.videoHeight || 480;
+  c.getContext('2d').drawImage(v, 0, 0);
+  photo = c.toDataURL('image/jpeg', 0.8);
+  document.getElementById('shot').src = photo;
+  document.getElementById('cam').classList.add('shot');
+  if (stream) stream.getTracks().forEach(function (t) { t.stop(); });
+  App.enter({ name: document.getElementById('name').value, photo: photo });
+  location.href = 'home.html';
+};
+</script>
+</body>
+</html>

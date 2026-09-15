@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Мои сайты — Ai крафт</title>
+  <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+<div class="app">
+  <aside class="side">
+    <a class="logo" href="../index.html">Ai крафт</a>
+    <nav id="nav"></nav>
+    <div class="user"><strong id="who">—</strong><a href="#" id="out">Выйти</a></div>
+  </aside>
+  <main class="main">
+    <div class="page-h">
+      <div><h1>Мои сайты</h1><p class="muted">По описанию. Откройте или соберите новый.</p></div>
+      <a class="btn" href="build.html">Собрать сайт</a>
+    </div>
+    <div id="list"></div>
+  </main>
+</div>
+<div id="mob"></div>
+<script src="../js/app.js"></script>
+<script>
+var s = App.require();
+if (!s) throw 0;
+App.applyTheme();
+document.getElementById('nav').innerHTML = App.nav('home.html');
+document.getElementById('mob').innerHTML = App.mob('home.html');
+document.getElementById('who').textContent = s.name;
+document.getElementById('out').onclick = function (e) { e.preventDefault(); App.clearSession(); location.href = 'enter.html'; };
+function render() {
+  var list = App.sites(s.login), el = document.getElementById('list');
+  if (!list.length) {
+    el.innerHTML = '<div class="empty"><h3>Пока нет сайтов</h3><p>Опишите идею — соберём сайт.</p><a class="btn" href="build.html" style="margin-top:14px">Собрать</a></div>';
+    return;
+  }
+  el.innerHTML = '<div class="cards">' + list.map(function (x) {
+    return '<div class="card"><h3>' + App.esc(x.name) + '</h3><p class="muted" style="color:var(--accent);font-weight:600">' + App.esc(App.addr(x)) + '</p><p>' + App.esc((x.description || '').slice(0, 120)) +
+      '</p><div class="actions"><button type="button" data-o="' + x.id + '">Открыть</button><a href="build.html">Ещё</a><button type="button" data-d="' + x.id + '">Удалить</button></div></div>';
+  }).join('') + '</div>';
+  el.querySelectorAll('[data-o]').forEach(function (b) {
+    b.onclick = function () {
+      var site = App.sites(s.login).find(function (x) { return x.id === b.dataset.o; });
+      App.openSite(site);
+    };
+  });
+  el.querySelectorAll('[data-d]').forEach(function (b) {
+    b.onclick = function () {
+      if (confirm('Удалить?')) { App.deleteSite(s.login, b.dataset.d); render(); App.toast('Удалено'); }
+    };
+  });
+}
+render();
+</script>
+</body>
+</html>

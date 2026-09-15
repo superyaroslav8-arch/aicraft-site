@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Собрать сайт — Ai крафт</title>
+  <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+<div class="app">
+  <aside class="side">
+    <a class="logo" href="../index.html">Ai крафт</a>
+    <nav id="nav"></nav>
+    <div class="user"><strong id="who">—</strong><a href="#" id="out">Выйти</a></div>
+  </aside>
+  <main class="main">
+    <div class="page-h"><h1>Собрать сайт</h1></div>
+    <div class="split">
+      <div class="card form">
+        <h3>1. Описание</h3>
+        <p class="muted" style="margin:6px 0 8px">Обычными словами</p>
+        <textarea id="idea" placeholder="Сайт кофейни: тёплый свет, меню, контакты"></textarea>
+        <button type="button" class="btn" id="build" style="margin-top:10px">Собрать</button>
+        <div id="addr" style="display:none;margin-top:16px">
+          <h3>2. Адрес</h3>
+          <div class="chips" id="mode">
+            <button type="button" class="chip on" data-m="sub">Поддомен</button>
+            <button type="button" class="chip" data-m="custom">Свой домен</button>
+          </div>
+          <div id="subBox">
+            <label>Поддомен</label>
+            <div style="display:flex;gap:8px">
+              <input id="sub" placeholder="pauza">
+              <select id="tld">
+                <option value="ai_craft.ru">.ai_craft.ru</option>
+                <option value="ai_craft.com">.ai_craft.com</option>
+                <option value="ai_craft.dev">.ai_craft.dev</option>
+              </select>
+            </div>
+          </div>
+          <div id="custBox" style="display:none">
+            <label>Домен</label>
+            <input id="custom" placeholder="shop.ru">
+          </div>
+          <button type="button" class="btn btn-block" id="save" style="margin-top:12px">Сохранить</button>
+        </div>
+      </div>
+      <div class="preview">
+        <div class="preview-bar" id="purl">предпросмотр</div>
+        <iframe id="frame" title="preview"></iframe>
+      </div>
+    </div>
+  </main>
+</div>
+<div id="mob"></div>
+<script src="../js/app.js"></script>
+<script>
+var s = App.require();
+if (!s) throw 0;
+App.applyTheme();
+document.getElementById('nav').innerHTML = App.nav('build.html');
+document.getElementById('mob').innerHTML = App.mob('build.html');
+document.getElementById('who').textContent = s.name;
+document.getElementById('out').onclick = function (e) { e.preventDefault(); App.clearSession(); location.href = 'enter.html'; };
+var mode = 'sub', built = null;
+function show(html, css) {
+  var doc = html;
+  if (doc.indexOf('</head>') !== -1) doc = doc.replace('</head>', '<style>' + css + '</style></head>');
+  else doc = '<style>' + css + '</style>' + doc;
+  document.getElementById('frame').srcdoc = doc;
+}
+function urlLabel() {
+  if (mode === 'custom') document.getElementById('purl').textContent = document.getElementById('custom').value || 'ваш-домен.ru';
+  else document.getElementById('purl').textContent = (document.getElementById('sub').value || 'project') + '.' + document.getElementById('tld').value;
+}
+document.querySelectorAll('#mode .chip').forEach(function (c) {
+  c.onclick = function () {
+    mode = c.dataset.m;
+    document.querySelectorAll('#mode .chip').forEach(function (x) { x.classList.toggle('on', x === c); });
+    document.getElementById('subBox').style.display = mode === 'sub' ? '' : 'none';
+    document.getElementById('custBox').style.display = mode === 'custom' ? '' : 'none';
+    urlLabel();
+  };
+});
+['sub', 'tld', 'custom'].forEach(function (id) {
+  document.getElementById(id).oninput = urlLabel;
+  document.getElementById(id).onchange = urlLabel;
+});
+document.getElementById('build').onclick = function () {
+  var idea = document.getElementById('idea').value.trim();
+  if (idea.length < 8) { App.toast('Опишите подробнее'); return; }
+  var p = App.parse(idea);
+  built = { name: p.title, description: idea, html: App.html(idea, p.title), css: App.css(p.tone) };
+  show(built.html, built.css);
+  document.getElementById('addr').style.display = '';
+  if (!document.getElementById('sub').value) {
+    document.getElementById('sub').value = (p.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 16)) || 'site';
+  }
+  urlLabel();
+  App.toast('Собрано');
+};
+document.getElementById('save').onclick = function () {
+  if (!built) { App.toast('Сначала соберите'); return; }
+  var subdomain, domain, customDomain = '';
+  if (mode === 'custom') {
+    customDomain = document.getElementById('custom').value.trim().toLowerCase().replace(/^https?:\/\//, '').replace(/\/$/, '');
+    if (!customDomain || customDomain.indexOf('.') < 0) { App.toast('Укажите домен'); return; }
+    subdomain = customDomain.split('.')[0]; domain = customDomain;
+  } else {
+    subdomain = document.getElementById('sub').value.trim().toLowerCase().replace(/[^a-z0-9-]/g, '');
+    domain = document.getElementById('tld').value;
+    if (subdomain.length < 2) { App.toast('Укажите поддомен'); return; }
+  }
+  App.createSite(s.login, {
+    name: built.name, subdomain: subdomain, domain: domain, customDomain: customDomain,
+    description: built.description,
+    files: { 'index.html': built.html, 'style.css': built.css }
+  });
+  App.toast('Сохранено');
+  setTimeout(function () { location.href = 'home.html'; }, 500);
+};
+show(App.html('Здесь будет сайт по описанию', 'Ai крафт'), App.css('neutral'));
+</script>
+</body>
+</html>
